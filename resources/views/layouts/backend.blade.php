@@ -63,6 +63,24 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js')}} in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{{ asset('backend/assets/js/config.js') }}"></script>
+    !-- Main JS -->
+    <script src="{{ asset('backend/assets/js/main.js') }}"></script>
+
+    <!-- Page JS -->
+    <script src="{{ asset('backend/assets/js/dashboards-analytics.js') }}"></script>
+
+    <!-- Midtrans -->
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="{{ config('midtrans.client_key') }}"></script>
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    @stack('scripts')
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
   </head>
 
   <body>
@@ -84,6 +102,8 @@
 
             <!-- Footer -->
             @include('include.backend.footer')
+
+            @yield('scripts')
             <!-- / Footer -->
 
             <div class="content-backdrop fade"></div>
@@ -111,7 +131,6 @@
     <!-- Vendors JS -->
     <script src="{{ asset('backend/assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
 
-    <!-- Main JS -->
     <script src="{{ asset('backend/assets/js/main.js') }}')}}"></script>
 
     <!-- Page JS -->

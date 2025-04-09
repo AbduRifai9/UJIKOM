@@ -1,113 +1,136 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\event;
-use App\Models\pemesanan;
-use App\Models\tiket;
+use App\Models\Pemesanan;
+use App\Models\Tiket;
 use App\Models\User;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class PemesananController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function bayar($id)
+    {
+        try {
+            $pemesanan = Pemesanan::with(['user', 'tiket'])->findOrFail($id);
+
+            // Set konfigurasi midtrans
+            Config::$serverKey    = config('midtrans.server_key');
+            Config::$isProduction = config('midtrans.is_production');
+            Config::$isSanitized  = true;
+            Config::$is3ds        = true;
+
+            // Buat array untuk parameter midtrans
+            $params = [
+                'transaction_details' => [
+                    'order_id'     => 'ORDER-' . $pemesanan->id . '-' . time(),
+                    'gross_amount' => $pemesanan->total_harga,
+                ],
+                'customer_details'    => [
+                    'first_name' => $pemesanan->user->name,
+                    'email'      => $pemesanan->user->email,
+                ],
+                'item_details'        => [
+                    [
+                        'id'       => $pemesanan->tiket->id,
+                        'price'    => $pemesanan->tiket->harga_tiket,
+                        'quantity' => $pemesanan->kuantitas,
+                        'name'     => $pemesanan->tiket->event->nama_event . ' - ' . $pemesanan->tiket->jenis_tiket,
+                    ],
+                ],
+            ];
+
+            // Dapatkan Snap Token dari Midtrans
+            $snapToken = Snap::getSnapToken($params);
+
+            return response()->json(['snap_token' => $snapToken]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
     public function index()
     {
-        $pemesanan = pemesanan::latest()->get();
+        $pemesanan = Pemesanan::with(['user', 'tiket.event'])->latest()->get();
         return view('pemesanan.index', compact('pemesanan'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        $pemesanan = pemesanan::all();
-        $user = user::all();
-        $tiket = tiket::all();
-        $event = event::all();
-        return view('pemesanan.create', compact('pemesanan', 'user', 'tiket', 'event'));
+        $user  = User::all();
+        $tiket = Tiket::with('event')->get();
+        return view('pemesanan.create', compact('user', 'tiket'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request, MidtransService $midtrans)
     {
         $validated = $request->validate([
-            'id_user' => 'required',
-            'id_tiket' => 'required',
-            'kuantitas' => 'required',
-            'total_harga' => 'required',
-            'status' => 'nullable',
+            'id_user'   => 'required',
+            'id_tiket'  => 'required|exists:tikets,id',
+            'kuantitas' => 'required|integer|min:1',
         ]);
 
-        $pemesanan = new pemesanan();
-        $pemesanan->id_user = $request->id_user;
-        $pemesanan->id_tiket = $request->id_tiket;
-        $pemesanan->kuantitas = $request->kuantitas;
-        $pemesanan->total_harga = $request->total_harga;
-        $pemesanan->status = 'Belum Bayar';
-        $pemesanan->save();
-        return redirect()->route('pemesanan.index')
-            ->with('success', 'data berhasil ditambahkan');
+        $tiket      = Tiket::findOrFail($request->id_tiket);
+        $totalHarga = $tiket->harga_tiket * $request->kuantitas;
+
+        // Buat pemesanan
+        $pemesanan = Pemesanan::create([
+            'id_user'     => $request->id_user,
+            'id_tiket'    => $request->id_tiket,
+            'kuantitas'   => $request->kuantitas,
+            'total_harga' => $totalHarga,
+            'status'      => 'Belum Bayar',
+        ]);
+
+        // Buat Order ID untuk Midtrans
+        $orderId = 'ORDER-' . $pemesanan->id . '-' . time();
+
+        $params = [
+            'transaction_details' => [
+                'order_id'     => $orderId,
+                'gross_amount' => $totalHarga,
+            ],
+            'customer_details'    => [
+                'first_name' => $pemesanan->user->name,
+                'email'      => $pemesanan->user->email,
+            ],
+        ];
+
+        $snap = $midtrans->createTransaction($params);
+
+        return redirect()->route('pemesanan.index')->with('snap_token', $snap->token);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**  
-     * Show the form for editing the specified resource.
-     */
     public function edit($id)
     {
         $pemesanan = Pemesanan::findOrFail($id);
-        $user = User::all();
-        $tiket = tiket::all();
-        $event = event::all();
-        return view('pemesanan.edit', compact('pemesanan', 'user', 'tiket', 'event'));
+        $user      = User::all();
+        $tiket     = Tiket::all();
+        return view('pemesanan.edit', compact('pemesanan', 'user', 'tiket'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'id_user' => 'required',
-            'id_tiket' => 'required',
-            'kuantitas' => 'required',
+            'id_user'     => 'required',
+            'id_tiket'    => 'required',
+            'kuantitas'   => 'required',
             'total_harga' => 'required',
-            'status' => 'required',
+            'status'      => 'required',
         ]);
 
         $pemesanan = Pemesanan::findOrFail($id);
-        $pemesanan->id_user = $request->id_user;
-        $pemesanan->id_tiket = $request->id_tiket;
-        $pemesanan->kuantitas = $request->kuantitas;
-        $pemesanan->total_harga = $request->total_harga;
-        $pemesanan->status = $request->status;
-        $pemesanan->save();
-        return redirect()->route('pemesanan.index')
-            ->with('success', 'data berhasil diperbarui');
+        $pemesanan->update($validated);
+
+        return redirect()->route('pemesanan.index')->with('success', 'Data berhasil diperbarui');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        $pemesanan = pemesanan::FindOrFail($id);
+        $pemesanan = Pemesanan::findOrFail($id);
         $pemesanan->delete();
-// $produk->kategori()->detach();
-        return redirect()->route('pemesanan.index')
-            ->with('success', 'data berhasil dihapus');
+
+        return redirect()->route('pemesanan.index')->with('success', 'Data berhasil dihapus');
     }
 }

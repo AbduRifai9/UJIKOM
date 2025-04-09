@@ -8,10 +8,10 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Tambah Data Tiket</h5>
-                        <a href="{{ route('tiket.index') }}" class="btn btn-sm btn-primary" style="float: right">Kembali</a>
+                        <a href="{{ route('admin.tiket.index') }}" class="btn btn-sm btn-primary" style="float: right">Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('tiket.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.tiket.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label" for="basic-default-name">Nama Event</label>

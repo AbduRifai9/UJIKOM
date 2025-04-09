@@ -15,7 +15,7 @@ class TiketController extends Controller
     {
         $tiket = tiket::latest()->get();
         $event = event::all();
-        return view('tiket.index', compact('tiket', 'event'));
+        return view('admin.tiket.index', compact('tiket', 'event'));
     }
 
     /**
@@ -25,7 +25,7 @@ class TiketController extends Controller
     {
         $tiket = tiket::all();
         $event = event::all();
-        return view('tiket.create', compact('tiket', 'event'));
+        return view('admin.tiket.create', compact('tiket', 'event'));
     }
 
     /**
@@ -51,7 +51,7 @@ class TiketController extends Controller
         $tiket->status = 'Aktif';
 
         $tiket->save();
-        return redirect()->route('tiket.index')
+        return redirect()->route('admin.tiket.index')
             ->with('success', 'data berhasil ditambahkan');
 
     }
@@ -71,7 +71,7 @@ class TiketController extends Controller
     {
         $event = event::all();
         $tiket = tiket::FindOrFail($id);
-        return view('tiket.edit', compact('tiket', 'event'));
+        return view('admin.tiket.edit', compact('tiket', 'event'));
     }
 
     /**
@@ -99,15 +99,19 @@ class TiketController extends Controller
         // $tiket->kuota_tersisa = $tiket->kuota_tiket - $tiket->tiket_terjual;
 
         $tiket->save();
-        return redirect()->route('tiket.index')->with('success', 'Data berhasil diperbarui');
+        return redirect()->route('admin.tiket.index')->with('success', 'Data berhasil diperbarui');
 
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(tiket $tiket)
+    public function destroy($id)
     {
-        //
+        $tiket = Tiket::FindOrFail($id);
+        $tiket->delete();
+        // $produk->kategori()->detach();
+        return redirect()->route('admin.tiket.index')
+            ->with('success', 'data berhasil dihapus');
     }
 }

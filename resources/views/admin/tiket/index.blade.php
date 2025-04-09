@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="mb-0">Data Tiket</h5>
-                    <a href="{{ route('tiket.create') }}" class="btn btn-sm btn-primary" style="float: right">Tambah</a>
+                    <a href="{{ route('admin.tiket.create') }}" class="btn btn-sm btn-primary" style="float: right">Tambah</a>
                 </div>
                 <div class="table-responsive text-nowrap">
                     <table class="table" id="dataTable">
@@ -43,12 +43,12 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a href="{{ route('tiket.edit', $item->id) }}"
+                                                    <a href="{{ route('admin.tiket.edit', $item->id) }}"
                                                         class="dropdown-item">Edit</a>
                                                 </li>
                                                 <!-- Formulir untuk hapus -->
                                                 <li>
-                                                    <form action="{{ route('tiket.destroy', $item->id) }}" method="POST"
+                                                    <form action="{{ route('admin.tiket.destroy', $item->id) }}" method="POST"
                                                         class="d-inline">
                                                         @method('DELETE')
                                                         @csrf

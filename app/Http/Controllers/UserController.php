@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use PDF;
 
 class UserController extends Controller
 {
@@ -98,5 +99,21 @@ class UserController extends Controller
             return redirect()->route('user.index');
         }
         return redirect()->route('user.index');
+    }
+
+    public function cetak_pdf()
+    {
+        $user = User::all();
+        $pdf = PDF::loadview('user_pdf', ['user' => $user]);
+        return $pdf->stream();
+
+    }
+
+    public function profile(Request $request)
+    {
+        return response()->json([
+            'message' => 'Success',
+            'data' => auth()->user(), // Pastikan hanya mengembalikan satu user, bukan list
+        ]);
     }
 }

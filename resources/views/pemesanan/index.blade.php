@@ -35,7 +35,12 @@
                                     <td>Rp {{ number_format($item->tiket->harga_tiket, 0, ',', '.') }}</td>
                                     <td>{{ $item->kuantitas }}</td>
                                     <td>Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
-                                    <td>{{ $item->status }}</td>
+                                    <td>
+                                        <span
+                                            class="badge bg-{{ $item->status == 'Sudah Bayar' ? 'success' : ($item->status == 'Belum Bayar' ? 'warning' : 'danger') }}">
+                                            {{ $item->status }}
+                                        </span>
+                                    </td>
                                     <td>
                                         <div class="btn-group">
                                             <button type="button"
@@ -48,16 +53,25 @@
                                                     <a href="{{ route('pemesanan.edit', $item->id) }}"
                                                         class="dropdown-item">Edit</a>
                                                 </li>
-                                                <!-- Formulir untuk hapus -->
                                                 <li>
                                                     <form action="{{ route('pemesanan.destroy', $item->id) }}"
                                                         method="POST" class="d-inline">
-                                                        @method('DELETE')
                                                         @csrf
+                                                        @method('DELETE')
                                                         <button type="submit" class="dropdown-item"
-                                                            onclick="return confirm('Apakah Anda Yakin Ingin Menghapus Data Tersebut?')">Delete</button>
+                                                            onclick="return confirm('Yakin ingin menghapus data ini?')">Delete</button>
                                                     </form>
                                                 </li>
+
+                                                {{-- Tombol bayar Midtrans jika status masih belum bayar --}}
+                                                @if ($item->status == 'Belum Bayar')
+                                                    <li>
+                                                        <button type="button" class="dropdown-item text-success"
+                                                            onclick="window.handlePayment({{ $item->id }})">
+                                                            Bayar Sekarang
+                                                        </button>
+                                                    </li>
+                                                @endif
                                             </ul>
                                         </div>
                                     </td>
@@ -72,9 +86,72 @@
     </div>
 @endsection
 @push('scripts')
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
     <script>
-        new DataTable('#dataTable');
+        // Definisikan fungsi dalam scope global window
+        window.handlePayment = function(id) {
+            Swal.fire({
+                title: 'Memproses Pembayaran',
+                text: 'Mohon tunggu...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            $.ajax({
+                url: `/admin/pemesanan/${id}/bayar`, // Updated URL with admin prefix
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                success: function(data) {
+                    Swal.close();
+
+                    window.snap.pay(data.snap_token, {
+                        onSuccess: function(result) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Pembayaran Berhasil',
+                                text: 'Terima kasih atas pembayaran Anda'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        onPending: function(result) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Pembayaran Pending',
+                                text: 'Silakan selesaikan pembayaran Anda'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        onError: function(result) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Pembayaran Gagal',
+                                text: 'Terjadi kesalahan dalam proses pembayaran'
+                            });
+                        },
+                        onClose: function() {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Pembayaran Dibatalkan',
+                                text: 'Anda menutup popup pembayaran'
+                            });
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: xhr.responseJSON?.message ||
+                            'Terjadi kesalahan dalam memproses pembayaran'
+                    });
+                }
+            });
+        };
     </script>
 @endpush

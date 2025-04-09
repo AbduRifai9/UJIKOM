@@ -1,32 +1,42 @@
 @extends('layouts.backend')
 @section('content')
-<div class="content-wrapper">
-    <!-- Content -->
-    <div class="container-xxl flex-grow-1 container-p-y">
-        <!-- Basic Bootstrap Table -->
-        <div class="card">
-            <h5 class="card-header">Data User</h5>
-            <div class="table-responsive text-nowrap">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            {{-- <th>Actions</th> --}}
-                        </tr>
-                    </thead>
-                    @php $no = 1; @endphp
-                    <tbody class="table-border-bottom-0">
-                        @foreach ($user as $item)
-                        <tr>
-                            <th scope="row">{{ $loop->index+1 }}</th>
-                            <td>{{ $item->name }}</td>
-                            <td>{{ $item->email }}</td>
-                            <td>{{ $item->is_admin ? 'Admin' : 'User' }}</td>
-                            <td>
-                                {{-- <div class="btn-group">
+    <div class="content-wrapper">
+        <!-- Content -->
+        <div class="container-xxl flex-grow-1 container-p-y">
+            <!-- Basic Bootstrap Table -->
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">Data User</h5>
+                    <a href="{{ route('user.pdf') }}" class="btn btn-sm btn-success" style="float: right">PDF</a>
+                    {{-- <a href="{{ route('user.excel') }}" class="btn btn-sm btn-primary" style="float: right">Excel</a> --}}
+                </div>
+                <div class="table-responsive text-nowrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                {{-- <th>Actions</th> --}}
+                            </tr>
+                        </thead>
+                        @php $no = 1; @endphp
+                        <tbody class="table-border-bottom-0">
+                            @foreach ($user as $item)
+                                <tr>
+                                    <th scope="row">{{ $loop->index + 1 }}</th>
+                                    <td>{{ $item->name }}</td>
+                                    <td>{{ $item->email }}</td>
+                                    <td>
+                                        @if ($item->is_admin == 1)
+                                            Admin
+                                        @else
+                                            User
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{-- <div class="btn-group">
                                     <button type="button"
                                         class="btn btn-primary btn-icon rounded-pill dropdown-toggle hide-arrow"
                                         data-bs-toggle="dropdown" aria-expanded="false">
@@ -50,18 +60,17 @@
                                             </form>
                                         </li>
                                     </ul> --}}
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
+                </div>
+                </td>
+                </tr>
+                @endforeach
+                </tbody>
                 </table>
             </div>
         </div>
         <!--/ Basic Bootstrap Table -->
     </div>
-</div>
-
+    </div>
 @endsection
 
 {{-- @extends('layouts.backend')

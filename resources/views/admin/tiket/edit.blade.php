@@ -8,11 +8,11 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Edit Data tiket</h5>
-                        <a href="{{ route('tiket.index') }}" class="btn btn-sm btn-primary" style="float: right">Kembali</a>
+                        <a href="{{ route('admin.tiket.index') }}" class="btn btn-sm btn-primary" style="float: right">Kembali</a>
                     </div>
 
                     <div class="card-body">
-                        <form action="{{ route('tiket.update', $tiket->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.tiket.update', $tiket->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="row mb-3">

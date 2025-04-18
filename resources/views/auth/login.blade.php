@@ -409,7 +409,7 @@
     <p class="text-muted my-3">atau login dengan</p>
 
     <a href="{{ url('/auth/google') }}" class="btn btn-outline-primary d-grid w-100">
-        <i class="bx bxl-google me-0 "></i> Login with Google
+        <i class="bx bxl-google me-0 "></i> Google
     </a>
 </div>
 

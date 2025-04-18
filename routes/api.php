@@ -38,6 +38,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
 });
 
-Route::post('/midtrans/create-transaction', [PemesananController::class, 'createTransaction']);
 Route::post('/midtrans/callback', [MidtransController::class, 'callback']);
 

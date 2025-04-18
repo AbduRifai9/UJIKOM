@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('tikets', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_event');
+            $table->unsignedBigInteger('event_id');
             $table->enum('jenis_tiket', ['Early Bird', 'Reguler', 'VIP']);
             $table->integer('harga_tiket');
             $table->integer('kuota_tiket');
             $table->integer('tiket_terjual');
-            $table->enum('status', ['Aktif', 'Tidak Aktif', 'Kadaluwarsa']);
             $table->timestamps();
 
-            $table->foreign('id_event')->references('id')->on('events')->onDelete('cascade');
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
         });
     }
 

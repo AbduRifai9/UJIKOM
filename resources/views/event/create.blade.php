@@ -136,12 +136,66 @@
     </div>
 @endsection
 @push('scriptjs')
+    <script>
+        $(document).ready(function() {
+            $('#lokasi').on('change', function() {
+                var kapasitas = $(this).find(':selected').data('kapasitas');
+                $('#kapasitas').val(kapasitas);
+            });
+
+            function parseTimeToMinutes(timeStr) {
+                if (!timeStr) return null;
+                const parts = timeStr.split(':');
+                if (parts.length !== 2) return null;
+                const hours = parseInt(parts[0], 10);
+                const minutes = parseInt(parts[1], 10);
+                if (isNaN(hours) || isNaN(minutes)) return null;
+                return (hours * 60) + minutes;
+            }
+
+            function validateDateTime() {
+                const tanggalMulai = $('#tanggal_mulai').val();
+                const tanggalSelesai = $('#tanggal_selesai').val();
+                const waktuMulai = $('#waktu_mulai').val();
+                const waktuSelesai = $('#waktu_selesai').val();
+
+                if (!tanggalMulai || !tanggalSelesai || !waktuMulai || !waktuSelesai) return;
+
+                const startDateTime = new Date(`${tanggalMulai}T${waktuMulai}`);
+                const endDateTime = new Date(`${tanggalSelesai}T${waktuSelesai}`);
+
+                const diffInMinutes = (endDateTime - startDateTime) / (1000 * 60);
+
+                if (startDateTime.getTime() === endDateTime.getTime()) {
+                    alert('Waktu selesai tidak boleh sama dengan waktu mulai.');
+                    $('#waktu_selesai').val('');
+                    return;
+                }
+
+                if (diffInMinutes < 120) {
+                    alert('Waktu selesai harus minimal 2 jam setelah waktu mulai.');
+                    $('#waktu_selesai').val('');
+                    return;
+                }
+            }
+
+
+            // Trigger validation when any date/time field changes
+            $('#tanggal_mulai, #tanggal_selesai, #waktu_mulai, #waktu_selesai').on('change', validateDateTime);
+
+            // Set tanggal selesai sama dengan tanggal mulai saat tanggal mulai berubah
+            $('#tanggal_mulai').on('change', function() {
+                $('#tanggal_selesai').val($(this).val());
+            });
+        });
+    </script>
 @endpush
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
         $('#lokasi').on('change', function() {
-            var kapasitas = $(this).find(':selected').data('kapasitas'); // Ambil kapasitas dari data-kapasitas
+            var kapasitas = $(this).find(':selected').data(
+            'kapasitas'); // Ambil kapasitas dari data-kapasitas
             $('#kapasitas').val(kapasitas); // Isi input kapasitas dengan nilai yang sesuai
         });
     });

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\event;
@@ -23,9 +22,20 @@ class TiketController extends Controller
      */
     public function create()
     {
-        $tiket = tiket::all();
-        $event = event::all();
-        return view('admin.tiket.create', compact('tiket', 'event'));
+        $event = event::with('lokasi', 'tiket')->get();
+
+// Siapkan data kapasitas tersisa per event
+        $kapasitasPerEvent = [];
+        foreach ($event as $e) {
+            $kapasitas = $e->lokasi->kapasitas;
+            $terpakai  = $e->tiket->sum('kuota_tiket');
+            $sisa      = $kapasitas - $terpakai;
+
+            $kapasitasPerEvent[$e->id] = $sisa;
+        }
+
+        return view('admin.tiket.create', compact('event', 'kapasitasPerEvent'));
+
     }
 
     /**
@@ -33,27 +43,30 @@ class TiketController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'id_event' => 'required',
-            'jenis_tiket' => 'nullable|enum',
-            'harga_tiket' => 'required',
-            'kuota_tiket' => 'required',
-            'tiket_terjual' => 'nullable|number',
-            'status' => 'nullable|enum',
+        $request->validate([
+            'event_id'    => 'required|exists:events,id',
+            'aktif_jenis' => 'required|array',
+            'harga_tiket' => 'required|array',
+            'kuota_tiket' => 'required|array',
         ]);
 
-        $tiket = new tiket();
-        $tiket->id_event = $request->id_event;
-        $tiket->jenis_tiket = 'Reguler';
-        $tiket->harga_tiket = $request->harga_tiket;
-        $tiket->kuota_tiket = $request->kuota_tiket;
-        $tiket->tiket_terjual = 0;
-        $tiket->status = 'Aktif';
+        foreach ($request->aktif_jenis as $jenis) {
+            $harga = $request->harga_tiket[$jenis] ?? null;
+            $kuota = $request->kuota_tiket[$jenis] ?? null;
 
-        $tiket->save();
-        return redirect()->route('admin.tiket.index')
-            ->with('success', 'data berhasil ditambahkan');
+            if ($harga && $kuota) {
+                \App\Models\Tiket::create([
+                    'event_id'      => $request->event_id,
+                    'jenis_tiket'   => $jenis,
+                    'harga_tiket'   => $harga,
+                    'kuota_tiket'   => $kuota,
+                    'tiket_terjual' => 0,
+                    'status'        => 'Aktif',
+                ]);
+            }
+        }
 
+        return redirect()->route('admin.tiket.index')->with('success', 'Tiket berhasil ditambahkan.');
     }
 
     /**
@@ -80,21 +93,21 @@ class TiketController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'id_event' => 'required',
-            'jenis_tiket' => 'required',
-            'harga_tiket' => 'required',
-            'kuota_tiket' => 'required',
+            'event_id'      => 'required',
+            'jenis_tiket'   => 'required',
+            'harga_tiket'   => 'required',
+            'kuota_tiket'   => 'required',
             'tiket_terjual' => 'required',
-            'status' => 'required',
+            'status'        => 'required',
         ]);
 
-        $tiket = tiket::FindOrFail($id);
-        $tiket->id_event = $request->id_event;
-        $tiket->jenis_tiket = $request->jenis_tiket;
-        $tiket->harga_tiket = $request->harga_tiket;
-        $tiket->kuota_tiket = $request->kuota_tiket - $request->tiket_terjual;
+        $tiket                = tiket::FindOrFail($id);
+        $tiket->event_id      = $request->event_id;
+        $tiket->jenis_tiket   = $request->jenis_tiket;
+        $tiket->harga_tiket   = $request->harga_tiket;
+        $tiket->kuota_tiket   = $request->kuota_tiket - $request->tiket_terjual;
         $tiket->tiket_terjual = $request->tiket_terjual;
-        $tiket->status = $request->status;
+        $tiket->status        = $request->status;
 
         // $tiket->kuota_tersisa = $tiket->kuota_tiket - $tiket->tiket_terjual;
 

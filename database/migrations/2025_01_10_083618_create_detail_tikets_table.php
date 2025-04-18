@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_pemesanan');
             $table->unsignedBigInteger('id_tiket');
             $table->unsignedBiginteger('id_pembayaran');
+            $table->enum('status', ['Belum Digunakan', 'Sudah Digunakan', 'Kadaluwarsa']);
             $table->timestamps();
 
             $table->foreign('id_pemesanan')->references('id')->on('pemesanans')->onDelete('cascade');

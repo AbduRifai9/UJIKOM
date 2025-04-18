@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_tiket');
             $table->integer('kuantitas');
             $table->integer('total_harga');
-            $table->enum('status', ['Belum Bayar', 'Sudah Bayar', 'Sudah Dibatalkan'])->default('Belum Bayar');
+            $table->string('status')->default('Belum Bayar');
             $table->timestamps();
 
             $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');

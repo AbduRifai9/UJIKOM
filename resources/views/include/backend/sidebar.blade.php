@@ -112,6 +112,11 @@
                 <div data-i18n="Basic">Pemesanan</div>
             </a>
         </li>
+        <li class="menu-item {{ Request::is('admin/detail') ? 'active' : '' }}">
+            <a href="{{ url('admin/detail') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-collection"></i>
+                <div data-i18n="Basic">Detail Pemesanan</div>
+            </a>
         <!-- Components -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Components</span></li>
         <!-- Cards -->

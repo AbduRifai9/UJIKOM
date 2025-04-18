@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class tiket extends Model
 {
     // use HasFactory;
-    protected $fillable = ['id', 'id_event', 'jenis_tiket', 'harga_tiket', 'kuota_tiket', 'tiket_terjual', 'tiket_kadaluwarsa'];
+    protected $fillable = ['id', 'event_id', 'jenis_tiket', 'harga_tiket', 'kuota_tiket', 'tiket_terjual', 'tiket_kadaluwarsa'];
     public $timestamps = true;
 
     // relasi ke tabel Merk
     public function event()
     {
-        return $this->BelongsTo(event::class, 'id_event');
+        return $this->BelongsTo(event::class, 'event_id');
     }
 
     public function pemesanan()

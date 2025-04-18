@@ -7,51 +7,60 @@
             <div class="col-xl">
                 <div class="card mb-4">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">Tambah Data Lokasi</h5>
-                        <a href="{{ route('lokasi.index') }}" class="btn btn-sm btn-primary" style="float: right">Kembali</a>
+                        <h5 class="mb-0">Tambah Data Detail Tiket/Pemesanan</h5>
+                        <a href="{{ route('detail.index') }}" class="btn btn-sm btn-primary" style="float: right">Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('lokasi.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('detail.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-12">
-                                    <!-- Field Nama Lokasi -->
-                                    <div class="mb-3">
-                                        <label class="col-sm-2 col-form-label" for="nama_lokasi">Nama Lokasi</label>
-                                        <input type="text"
-                                            class="form-control @error('nama_lokasi') is-invalid @enderror"
-                                            name="nama_lokasi" id="nama_lokasi" value="{{ old('nama_lokasi') }}">
-                                        @error('nama_lokasi')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                    <!-- Field Nama detail -->
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Nama Pemesan</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="id_pemesanan" id="id_pemesanan">
+                                                @foreach ($pemesanan as $data)
+                                                    <option value="{{ $data->id }}">
+                                                        {{ $data->user->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <!-- Field Kapasitas -->
-                                    <div class="mb-3">
-                                        <label class="col-sm-2 col-form-label" for="kapasitas">Kapasitas</label>
-                                        <input type="number" class="form-control @error('kapasitas') is-invalid @enderror"
-                                            name="kapasitas" id="kapasitas" value="{{ old('kapasitas') }}">
-                                        @error('kapasitas')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                        @enderror
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Email Pemesan</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="id_pemesanan" id="id_pemesanan">
+                                                @foreach ($pemesanan as $data)
+                                                    <option value="{{ $data->id }}">{{ $data->user->email }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
 
-                                    <!-- Field Lokasi dengan Map -->
-                                    <div class="mb-3">
-                                        <label class="form-label" for="lokasi">Lokasi</label>
-                                        <div id="map" class="form-control"></div>
-                                        <input type="hidden" id="lat" name="latitude">
-                                        <input type="hidden" id="lng" name="longitude">
-                                        <div class="input-group mt-3">
-                                            <input type="text" id="search-location" class="form-control"
-                                                placeholder="Masukkan nama lokasi">
-                                            <button class="btn btn-primary" id="search-button" type="button">
-                                                <i class="bx bx-search"></i> Cari
-                                            </button>
+                                    <!-- Field detail dengan Map -->
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Jenis Acara</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="id_pemesanan" id="id_pemesanan">
+                                                @foreach ($pemesanan as $data)
+                                                    <option value="{{ $data->id }}">
+                                                        {{ $data->tiket->event->nama_event }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label class="col-sm-2 col-form-label">Jenis Tiket</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="id_pemasanan" id="id_pemasanan">
+                                                @foreach ($pemesanan as $data)
+                                                    <option value="{{ $data->id }}">{{ $data->tiket->jenis_tiket }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
 
@@ -68,7 +77,7 @@
     </div>
 @endsection
 
-@push('scriptjs')
+{{-- @push('scriptjs')
     <!-- Leaflet JS & CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -113,12 +122,12 @@
                 document.getElementById('lng').value = lng;
             });
 
-            // Fungsi pencarian lokasi menggunakan Nominatim
+            // Fungsi pencarian detail menggunakan Nominatim
             document.getElementById('search-button').addEventListener('click', function() {
                 const query = document.getElementById('search-location').value;
 
                 if (!query) {
-                    alert('Masukkan nama lokasi untuk mencari!');
+                    alert('Masukkan nama detail untuk mencari!');
                     return;
                 }
 
@@ -135,14 +144,14 @@
                             document.getElementById('lat').value = lat;
                             document.getElementById('lng').value = lng;
                         } else {
-                            alert('Lokasi tidak ditemukan. Coba kata kunci lain.');
+                            alert('detail tidak ditemukan. Coba kata kunci lain.');
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching location:', error);
-                        alert('Terjadi kesalahan saat mencari lokasi.');
+                        alert('Terjadi kesalahan saat mencari detail.');
                     });
             });
         });
     </script>
-@endpush
+@endpush --}}

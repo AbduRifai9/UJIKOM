@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class detail_tiket extends Model
 {
     // use HasFactory;
-    protected $fillable = ['id', 'id_pemesanan', 'id_tiket', 'id_pembayaran'];
+    protected $fillable = ['id', 'id_pemesanan', 'id_tiket', 'id_pembayaran', 'expired_at', 'status', 'qr_code', 'qr_path'];
     public $timestamps = true;
 
     // relasi ke tabel Merk

@@ -34,8 +34,8 @@
                                 <div class="col-sm-10">
                                     <select class="form-control" id="event">
                                         <option value="">-- Pilih Event --</option>
-                                        @foreach ($tiket->unique('id_event') as $data)
-                                            <option value="{{ $data->id_event }}">{{ $data->event->nama_event }}</option>
+                                        @foreach ($tiket->unique('event_id') as $data)
+                                            <option value="{{ $data->event_id }}">{{ $data->event->nama_event }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -103,7 +103,7 @@
             jenisTiket.innerHTML = '<option value="">-- Pilih Jenis Tiket --</option>';
 
             // Filter tiket berdasarkan event yang dipilih
-            const tiketEvent = semuaTiket.filter(tiket => tiket.id_event == eventId);
+            const tiketEvent = semuaTiket.filter(tiket => tiket.event_id == eventId);
 
             tiketEvent.forEach(tiket => {
                 const option = document.createElement("option");

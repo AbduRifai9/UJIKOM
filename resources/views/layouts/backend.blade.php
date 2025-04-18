@@ -63,7 +63,6 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js')}} in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{{ asset('backend/assets/js/config.js') }}"></script>
-    !-- Main JS -->
     <script src="{{ asset('backend/assets/js/main.js') }}"></script>
 
     <!-- Page JS -->
@@ -104,6 +103,8 @@
             @include('include.backend.footer')
 
             @yield('scripts')
+            @stack('scriptjs')
+
             <!-- / Footer -->
 
             <div class="content-backdrop fade"></div>

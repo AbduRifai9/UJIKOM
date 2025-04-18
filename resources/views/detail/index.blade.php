@@ -6,29 +6,39 @@
             <!-- Basic Bootstrap Table -->
             <div class="card">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Data Lokasi</h5>
-                    <a href="{{ route('lokasi.create') }}" class="btn btn-sm btn-primary" style="float: right">Tambah</a>
+                    <h5 class="mb-0">Data Detail Tiket/Pemesanan</h5>
+                    {{-- <a href="{{ route('detail.create') }}" class="btn btn-sm btn-primary" style="float: right">Tambah</a> --}}
                 </div>
                 <div class="table-responsive text-nowrap">
                     <table class="table" id="dataTable">
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama Lokasi</th>
-                                <th>Kapasitas</th>
-                                <th>Lihat Lokasi</th>
+                                <th>Nama Pemesan</th>
+                                <th>Jenis Acara</th>
+                                <th>Jenis Tiket</th>
+                                <th>Jumlah Tiket</th>
+                                <th>Total Harga</th>
+                                <th>Status Pembayaran</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         @php $no = 1; @endphp
                         <tbody class="table-border-bottom-0">
-                            @foreach ($lokasi as $item)
+                            @foreach ($detail as $item)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $item->nama_lokasi }}</td>
-                                    <td>{{ $item->kapasitas }}</td>
+                                    <td>{{ optional($item->pemesanan->user)->name ?? '-' }}</td>
+                                    <td>{{ optional($item->pemesanan->tiket->event)->nama_event ?? '-' }}</td>
+                                    <td>{{ optional($item->pemesanan->tiket)->jenis_tiket ?? '-' }}</td>
+                                    <td>{{ optional($item->pemesanan)->kuantitas ?? '-' }}</td>
+                                    <td>Rp {{ number_format(optional($item->pemesanan)->total_harga, 0, ',', '.') ?? '-'}}</td>
                                     <td>
-                                        <div id="map{{ $item->id }}" style="height: 100px; border-radius: 8px;"></div>
+                                        @if (optional($item->pemesanan)->status_pembayaran == 1)
+                                            <span class="badge bg-label-success">Sudah Digunakan</span>
+                                        @else
+                                            <span class="badge bg-label-warning">Belum Digunakan</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="btn-group">
@@ -39,12 +49,12 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a href="{{ route('lokasi.edit', $item->id) }}"
+                                                    <a href="{{ route('detail.edit', $item->id) }}"
                                                         class="dropdown-item">Edit</a>
                                                 </li>
                                                 <!-- Formulir untuk hapus -->
                                                 <li>
-                                                    <form action="{{ route('lokasi.destroy', $item->id) }}" method="POST"
+                                                    <form action="{{ route('detail.destroy', $item->id) }}" method="POST"
                                                         class="d-inline">
                                                         @method('DELETE')
                                                         @csrf
@@ -72,14 +82,14 @@
         new DataTable('#dataTable');
     </script>
 
-        <!-- Leaflet JS & CSS -->
+    <!-- Leaflet JS & CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <!-- Inisialisasi Map untuk setiap lokasi -->
-    <script>
+    <!-- Inisialisasi Map untuk setiap Detail -->
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
-            @foreach ($lokasi as $item)
+            @foreach ($Detail as $item)
                 // Pastikan variabel latitude dan longitude tersedia. Gunakan default jika nilainya null.
                 var lat = {{ $item->latitude ?? '-2.5489' }};
                 var lng = {{ $item->longitude ?? '118.0149' }};
@@ -93,7 +103,7 @@
                 L.marker([lat, lng]).addTo(map{{$item->id}});
             @endforeach
         });
-    </script>
+    </script> --}}
 @endpush
 {{-- document.getElementById('output').innerHTML =
 '<iframe src="{{ $item->url }}" width="100" height="100" style="border:0;" allowfullscreen></iframe>'; --}}

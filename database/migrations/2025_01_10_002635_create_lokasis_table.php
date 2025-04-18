@@ -14,10 +14,9 @@ return new class extends Migration
         Schema::create('lokasis', function (Blueprint $table) {
             $table->id();
             $table->string('nama_lokasi');
-            $table->string('alamat_lokasi');
             $table->integer('kapasitas');
-            $table->string('foto');
-            $table->longText('url');
+            $table->decimal('latitude', 10, 7);
+            $table->decimal('longitude', 10, 7);
             $table->timestamps();
         });
     }

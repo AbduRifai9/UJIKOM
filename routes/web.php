@@ -1,16 +1,16 @@
 <?php
 
+use App\Http\Controllers\DetailTiketController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LokasiController;
-use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\PemesananController;
+use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\TiketController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\SocialiteController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -39,13 +39,13 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], function () {
     ]);
     Route::resource('sponsor', SponsorController::class);
     Route::resource('pemesanan', PemesananController::class);
+    Route::resource('detail', DetailTiketController::class);
     Route::post('pemesanan/{id}/bayar', [PemesananController::class, 'bayar'])->name('pemesanan.bayar');
 });
 
 // endpoint untuk notifikasi Midtrans
 Route::post('/midtrans/create-transaction', [PemesananController::class, 'createTransaction']);
-Route::post('/midtrans/callback', [MidtransController::class, 'callback']);
 Route::get('/auth/{provider}', [SocialiteController::class, 'redirectToProvider']);
 Route::get('/auth/{provider}/callback', [SocialiteController::class, 'handleProviderCallback']);
-
-
+Route::get('/detail-tiket/qr/{id}', [DetailTiketController::class, 'generateQr'])->name('detail-tiket.qr');
+Route::get('/detail-tiket/scan/{id}', [DetailTiketController::class, 'scanQr'])->name('detail-tiket.scan');

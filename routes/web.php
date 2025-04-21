@@ -11,6 +11,7 @@ use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\TiketController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MidtransController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -18,6 +19,35 @@ Auth::routes();
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/detail', function () {
+    return view('detail');
+});
+
+Route::get('/transaksi', function () {
+    return view('transaksi');
+});
+
+Route::get('/event/{slug}', [EventController::class, 'detail'])->name('event.detail');
+Route::get('/transaksi/{id_tiket}/{jumlah}', [PemesananController::class, 'checkout'])->name('transaksi.checkout');
+Route::get('/pemesanan/success', [MidtransController::class, 'success'])->name('pemesanan.success');
+Route::get('/pemesanan/pending', [MidtransController::class, 'pending'])->name('pemesanan.pending');
+Route::get('/pemesanan/error', [MidtransController::class, 'error'])->name('pemesanan.error');
+Route::get('/pemesanan/cancel', function () {
+    return view('cancel-page'); // atau redirect kembali
+})->name('pemesanan.cancel');
+Route::middleware(['auth'])->group(function () {
+    // Pemesanan routes
+    Route::post('/pemesanan/create', [PemesananController::class, 'create'])->name('pemesanan.create');
+    Route::get('/pemesanan/success', [PemesananController::class, 'success'])->name('pemesanan.success');
+    Route::get('/pemesanan/pending', [PemesananController::class, 'pending'])->name('pemesanan.pending');
+});
+Route::middleware(['auth'])->group(function () {
+    // ...existing routes...
+    Route::post('/pemesanan/proses', [PemesananController::class, 'proses'])->name('pemesanan.proses');
+});
+
+
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -45,6 +75,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], function () {
 
 // endpoint untuk notifikasi Midtrans
 Route::post('/midtrans/create-transaction', [PemesananController::class, 'createTransaction']);
+Route::post('/pemesanan/proses', [PemesananController::class, 'proses'])->name('pemesanan.proses');
 Route::get('/auth/{provider}', [SocialiteController::class, 'redirectToProvider']);
 Route::get('/auth/{provider}/callback', [SocialiteController::class, 'handleProviderCallback']);
 Route::get('/detail-tiket/qr/{id}', [DetailTiketController::class, 'generateQr'])->name('detail-tiket.qr');

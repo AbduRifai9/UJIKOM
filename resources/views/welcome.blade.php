@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/tiny-slider.css') }}" />
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/aos.css') }}" />
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/style.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <title>
         WaveFest
@@ -48,67 +49,17 @@
         <div class="site-mobile-menu-body"></div>
     </div>
 
-    <nav class="site-nav">
-        <div class="container">
-            <div class="menu-bg-wrap">
-                <div class="site-navigation">
-                    <a href="index.html" class="logo m-0 float-start mt-2">WaveFest</a>
-
-                    <ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
-                        <li>
-                            <form action="#" class="narrow-w form-search d-flex align-items-stretch"
-                                data-aos="fade-in" data-aos-delay="200">
-                                <input type="text" class="form-control px-4" placeholder="Masukkan Kata Kunci Anda"
-                                    style="width: 300px" />
-                                <button type="submit" class="btn btn-primary border-1"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="25" height="25"
-                                        fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                        <path
-                                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                                    </svg></button>
-                            </form>
-                        </li>
-                        <li class="active"><a href="index.html">Home</a></li>
-                        <li class="has-children">
-                            <a href="properties.html">Properties</a>
-                            <ul class="dropdown">
-                                <li><a href="#">Buy Property</a></li>
-                                <li><a href="#">Sell Property</a></li>
-                                <li class="has-children">
-                                    <a href="#">Dropdown</a>
-                                    <ul class="dropdown">
-                                        <li><a href="#">Sub Menu One</a></li>
-                                        <li><a href="#">Sub Menu Two</a></li>
-                                        <li><a href="#">Sub Menu Three</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><a href="services.html">Services</a></li>
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="{{ asset('frontend/assets/contact.html') }}">Contact Us</a></li>
-                    </ul>
-
-                    <a href="#"
-                        class="burger light me-auto float-end mt-1 site-menu-toggle js-menu-toggle d-inline-block d-lg-none"
-                        data-toggle="collapse" data-target="#main-navbar">
-                        <span></span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    @include('include.frontend.navbar')
 
     <div class="hero">
         <div class="hero-slide">
             <div class="img overlay"
+                style="background-image: url('{{ asset('frontend/assets/images/perunggu.jpg') }}')">
+            </div>
+            <div class="img overlay" style="background-image: url('{{ asset('frontend/assets/images/jenny.jpg') }}')">
+            </div>
+            <div class="img overlay"
                 style="background-image: url('{{ asset('frontend/assets/images/konser-1.jpg') }}')">
-            </div>
-            <div class="img overlay"
-                style="background-image: url('{{ asset('frontend/assets/images/crowdsurfing.jpg') }}')">
-            </div>
-            <div class="img overlay"
-                style="background-image: url('{{ asset('frontend/assets/images/konser-2.jpg') }}')">
             </div>
         </div>
 
@@ -116,7 +67,7 @@
             <div class="row justify-content-center align-items-center">
                 <div class="col-lg-9 text-center">
                     <h1 class="heading" data-aos="fade-up">
-                        Easiest way to find your dream home
+                        Temukan selera musikmu di WaveFest
                     </h1>
                 </div>
             </div>
@@ -128,7 +79,7 @@
             <div class="row mb-5 align-items-center">
                 <div class="col-lg-6">
                     <h2 class="font-weight-bold text-primary heading">
-                        Event Hari Ini
+                        <b>Event Hari Ini</b>
                     </h2>
                 </div>
                 <div class="col-lg-6 text-lg-end">
@@ -145,41 +96,39 @@
                             @foreach ($tiket->sortByDesc('created_at')->take(10) as $item)
                                 <div class="property-item">
                                     <div class="property-content">
-                                        <div>
-                                            <img src="{{ asset('/images/event/' . $item->event->poster) }}"
-                                                alt="Image" class="img-fluid custom-img" />
-                                            <span class="city d-block mb-1">{{ $item->event->nama_event }}</span>
-                                            <span class="d-block d-flex align-items-center">
-                                                <span class="icon-calendar me-2 mb-1"></span>
-                                                <span
-                                                    class="d-block mb-1 text-black-50 h6">{{ \Carbon\Carbon::parse($item->event->tanggal_mulai)->locale('id')->translatedFormat('d F Y') }}
-                                                </span>
-                                            </span>
-                                            <span class="d-block d-flex align-items-center">
-                                                <span class="d-block mb-1 text-black-50 h6 me-2 ">Harga Mulai
-                                                    Dari</span>
-                                                <div class="price mb-2"><span>Rp
-                                                        {{ number_format($item->harga_tiket, 0, ',', '.') }}</span>
-                                                </div>
-                                            </span>
-                                            <div class="specs d-flex mb-4">
-                                                <span class="d-block d-flex align-items-center me-3">
-                                                    <span class="icon-ticket me-2"></span>
-                                                    <span class="caption">Presale</span>
-                                                </span>
-                                                <span class="d-block d-flex align-items-center">
-                                                    <span class="icon-ticket me-2"></span>
-                                                    <span class="caption">Early Bird</span>
-                                                </span>
-                                            </div>
+                                        <img src="{{ asset('/images/event/' . $item->event->poster) }}" alt="Image"
+                                            class="img-fluid custom-img mb-2" style="margin-top: 30%" />
 
-                                            <a href="property-single.html" class="btn btn-primary py-2 px-3">See
-                                                details</a>
+                                        <h5 class="mb-1">{{ $item->event->nama_event }}</h5>
+
+                                        <div class="d-flex align-items-center text-black-50 mb-1">
+                                            <i class="icon-calendar me-2"></i>
+                                            <span>{{ \Carbon\Carbon::parse($item->event->tanggal_mulai)->locale('id')->translatedFormat('d F Y') }}</span>
+                                        </div>
+
+                                        <div class="specs d-flex flex-wrap mb-2 mt-2">
+                                            <div class="d-flex align-items-center me-3">
+                                                <i class="fas fa-map-marker-alt me-2"></i>
+                                                <span class="caption">{{ $item->event->lokasi->nama_lokasi }}</span>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <i class="icon-ticket me-2"></i>
+                                                <span class="caption">{{ $item->jenis_tiket }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="price">
+                                                <span>Rp {{ number_format($item->harga_tiket, 0, ',', '.') }}</span>
+                                            </div>
+                                            <a href="{{ route('event.detail', $item->event->slug) }}"
+                                                class="btn btn-primary py-2 px-3 rounded-2">
+                                                Beli Tiket
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
-                            <!-- .item -->
                         </div>
 
                         <div id="property-nav" class="controls" tabindex="0" aria-label="Carousel Navigation">
@@ -191,6 +140,8 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 

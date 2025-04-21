@@ -76,16 +76,10 @@
                         <div class="row mb-3">
                             <label class="col-sm-2 col-form-label" for="basic-default-name">Status : </label>
                             <div class="col-sm-10">
-                                <b class="form-control disabled-div">
-                                    @if ($event->status == 'Segera')
-                                        Segera
-                                    @elseif ($event->status == 'Sedang Berlangsung')
-                                        Sedang Berlangsung
-                                    @elseif ($event->status == 'Selesai')
-                                        Selesai
-                                    @else
-                                        Dibatalkan
-                                    @endif
+                                <b class="form-control disabled-div event-status"
+                                    data-start="{{ $event->tanggal_mulai }} {{ $event->waktu_mulai }}"
+                                    data-end="{{ $event->tanggal_selesai }} {{ $event->waktu_selesai }}">
+                                    {{ $event->status }}
                                 </b>
                             </div>
                         </div>
@@ -96,4 +90,24 @@
     </div>
 @endsection
 @push('scriptjs')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusEl = document.querySelector('.event-status');
+        const start = new Date(statusEl.dataset.start);
+        const end = new Date(statusEl.dataset.end);
+        const now = new Date();
+
+        let status = '';
+        if (now < start) {
+            status = 'Segera';
+        } else if (now >= start && now <= end) {
+            status = 'Sedang Berlangsung';
+        } else {
+            status = 'Selesai';
+        }
+
+        statusEl.textContent = status;
+    });
+</script>
 @endpush
+

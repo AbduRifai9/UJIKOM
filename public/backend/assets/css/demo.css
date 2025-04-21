@@ -35,6 +35,53 @@
     z-index: auto;
 }
 
+
+
+/* Toast container - warna hijau cerah */
+.colored-toast.swal2-toast {
+    background-color: #00ff73 !important;
+    /* Hijau cerah */
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px;
+    padding: 0.75rem 1rem !important;
+    border-radius: 10px !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Teks toast */
+/* Toast container - hijau cerah */
+.colored-toast.swal2-toast {
+    background-color: #28c76f !important;
+    /* Hijau cerah */
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px;
+    padding: 0.75rem 1rem !important;
+    border-radius: 10px !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Teks toast */
+.colored-toast .swal2-title {
+    color: #ffffff !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* Timer progress bar */
+.colored-toast .swal2-timer-progress-bar {
+    background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Toast container z-index */
+.swal2-container {
+    z-index: 99999 !important;
+}
+
 /*
 * Content
 ******************************************************************************/

@@ -2,28 +2,41 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class event extends Model
 {
-    // use HasFactory;
-    protected $fillable = ['id','nama_event','deskripsi','poster','tanggal_event','waktu_event','tanggal_selesai','waktu_selesai','id_lokasi','status'];
-    public $timestamps = true;
+    protected $fillable = [
+        'id', 'nama_event', 'slug', 'deskripsi', 'poster', 'tanggal_event', 'waktu_event',
+        'tanggal_selesai', 'waktu_selesai', 'id_lokasi', 'status',
+    ];
 
-    // relasi ke tabel Merk
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($event) {
+            $event->slug = Str::slug($event->nama_event);
+        });
+
+        static::updating(function ($event) {
+            $event->slug = Str::slug($event->nama_event);
+        });
+    }
+
     public function lokasi()
     {
-        return $this->BelongsTo(lokasi::class, 'id_lokasi');
+        return $this->belongsTo(lokasi::class, 'id_lokasi');
     }
 
     public function sponsor()
     {
-        return $this->HasMany(sponsor::class);
+        return $this->hasMany(sponsor::class);
     }
 
     public function tiket()
     {
-        return $this->HasMany(tiket::class);
+        return $this->hasMany(tiket::class);
     }
 }

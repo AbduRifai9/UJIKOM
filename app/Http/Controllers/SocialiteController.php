@@ -31,8 +31,11 @@ class SocialiteController extends Controller
 
             Auth::login($user);
 
-            // Redirect to admin dashboard instead of /home
-            return redirect()->intended('admin/home');
+            if ($user->is_admin == 1) {
+                return redirect('admin/home');
+            } else {
+                return redirect('/');
+            }
 
         } catch (Exception $e) {
             Log::error('Social login error: ' . $e->getMessage());

@@ -37,7 +37,12 @@
                                     <td>{{ $item->tanggal_mulai }}</td>
                                     {{-- <td>{{ $item->waktu_event }}</td> --}}
                                     <td>{{ $item->lokasi->nama_lokasi }}</td>
-                                    <td>{{ $item->status }}</td>
+                                    <td class="event-status"
+                                        data-start="{{ $item->tanggal_mulai }} {{ $item->waktu_mulai }}"
+                                        data-end="{{ $item->tanggal_selesai }} {{ $item->waktu_selesai }}">
+                                        {{ $item->status }}
+                                    </td>
+
                                     <td>
                                         <div class="btn-group">
                                             <button type="button"
@@ -60,8 +65,10 @@
                                                         class="d-inline">
                                                         @method('DELETE')
                                                         @csrf
-                                                        <button type="submit" class="dropdown-item"
-                                                            onclick="return confirm('Apakah Anda Yakin Ingin Menghapus Data Tersebut?')">Delete</button>
+                                                        <button type="button" class="dropdown-item btn-delete"
+                                                            data-url="{{ route('event.destroy', $item->id) }}">
+                                                            Delete
+                                                        </button>
                                                     </form>
                                                 </li>
                                             </ul>
@@ -77,10 +84,108 @@
         </div>
     </div>
 @endsection
-@push('scripts')
+@push('scriptjs')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+
     <script>
         new DataTable('#dataTable');
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusCells = document.querySelectorAll('.event-status');
+
+            statusCells.forEach(cell => {
+                const start = new Date(cell.dataset.start);
+                const end = new Date(cell.dataset.end);
+                const now = new Date();
+
+                let status = '';
+
+                if (now < start) {
+                    status = 'Segera';
+                } else if (now >= start && now <= end) {
+                    status = 'Sedang Berlangsung';
+                } else {
+                    status = 'Selesai';
+                }
+
+                cell.textContent = status;
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+
+                    Swal.fire({
+                        title: 'Yakin ingin menghapus?',
+                        text: "Anda yakin ingin menghapus data ini!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        customClass: {
+                            popup: 'colored-toast' // gunakan styling jika ingin seragam
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = url;
+
+                            const csrf = document.createElement('input');
+                            csrf.type = 'hidden';
+                            csrf.name = '_token';
+                            csrf.value = '{{ csrf_token() }}';
+
+                            const method = document.createElement('input');
+                            method.type = 'hidden';
+                            method.name = '_method';
+                            method.value = 'DELETE';
+
+                            form.appendChild(csrf);
+                            form.appendChild(method);
+
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+
+    @if (session('success'))
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                customClass: {
+                    popup: 'colored-toast'
+                }
+            });
+        </script>
+    @endif
 @endpush

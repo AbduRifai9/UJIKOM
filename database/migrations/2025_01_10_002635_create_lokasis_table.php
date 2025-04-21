@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('kapasitas');
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
+            $table->string('fasilitas')->nullable();
             $table->timestamps();
         });
     }

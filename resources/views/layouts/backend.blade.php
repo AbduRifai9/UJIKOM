@@ -63,17 +63,17 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js')}} in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{{ asset('backend/assets/js/config.js') }}"></script>
-    <script src="{{ asset('backend/assets/js/main.js') }}"></script>
-
-    <!-- Page JS -->
-    <script src="{{ asset('backend/assets/js/dashboards-analytics.js') }}"></script>
 
     <!-- Midtrans -->
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('midtrans.client_key') }}"></script>
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 
 
     @stack('scripts')
@@ -102,14 +102,13 @@
             <!-- Footer -->
             @include('include.backend.footer')
 
-            @yield('scripts')
-            @stack('scriptjs')
 
             <!-- / Footer -->
 
             <div class="content-backdrop fade"></div>
-          </div>
-          <!-- Content wrapper -->
+        </div>
+        <!-- Content wrapper -->
+
         </div>
         <!-- / Layout page -->
       </div>
@@ -129,15 +128,17 @@
     <script src="{{ asset('backend/assets/vendor/js/menu.js') }}"></script>
     <!-- endbuild -->
 
+    <script src="{{ asset('backend/assets/js/main.js') }}"></script>
+
+    <!-- Page JS -->
+    <script src="{{ asset('backend/assets/js/dashboards-analytics.js') }}"></script>
+
     <!-- Vendors JS -->
     <script src="{{ asset('backend/assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
 
-    <script src="{{ asset('backend/assets/js/main.js') }}')}}"></script>
-
-    <!-- Page JS -->
-    <script src="{{ asset('backend/assets/js/dashboards-analytics.js') }}')}}"></script>
-
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js')}}"></script>
+    @yield('scripts')
+    @stack('scriptjs')
   </body>
 </html>

@@ -28,8 +28,7 @@
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label" for="basic-default-name">Deskripsi</label>
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control @error('deskripsi') is-invalid @enderror"
-                                        name="deskripsi" id="deskripsi" value="{{ old('deskripsi') }}">
+                                    <textarea name="deskripsi" id="deskripsi" class="form-control">{{ old('deskripsi') }}</textarea>
                                     @error('deskripsi')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
@@ -100,19 +99,29 @@
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label" for="basic-default-name">Lokasi Event</label>
                                 <div class="col-sm-10">
-                                    <select class="form-control" name="id_lokasi" id="lokasi">
+                                    <select class="form-control select2 @error('id_lokasi') is-invalid @enderror"
+                                        name="id_lokasi" id="lokasi">
                                         <option value="" disabled selected>Pilih Lokasi</option>
                                         @foreach ($lokasi as $data)
-                                            <option value="{{ $data->id }}" data-kapasitas="{{ $data->kapasitas }}">
+                                            <option value="{{ $data->id }}" data-kapasitas="{{ $data->kapasitas }}"
+                                                {{ old('id_lokasi') == $data->id ? 'selected' : '' }}>
                                                 {{ $data->nama_lokasi }}
                                             </option>
                                         @endforeach
                                     </select>
+                                    {{-- Error message --}}
                                     @error('id_lokasi')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
                                     @enderror
+
+                                    {{-- Optional: pesan error dari session (misal bentrok lokasi) --}}
+                                    @if (session('error'))
+                                        <div class="invalid-feedback d-block">
+                                            {{ session('error') }}
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -136,8 +145,26 @@
     </div>
 @endsection
 @push('scriptjs')
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#deskripsi'))
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+
+
     <script>
         $(document).ready(function() {
+            $('#lokasi').select2({
+                placeholder: "Pilih Lokasi",
+                allowClear: true
+            });
+
             $('#lokasi').on('change', function() {
                 var kapasitas = $(this).find(':selected').data('kapasitas');
                 $('#kapasitas').val(kapasitas);
@@ -167,18 +194,25 @@
                 const diffInMinutes = (endDateTime - startDateTime) / (1000 * 60);
 
                 if (startDateTime.getTime() === endDateTime.getTime()) {
-                    alert('Waktu selesai tidak boleh sama dengan waktu mulai.');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Waktu Tidak Valid',
+                        text: 'Waktu selesai tidak boleh sama dengan waktu mulai.'
+                    });
                     $('#waktu_selesai').val('');
                     return;
                 }
 
                 if (diffInMinutes < 120) {
-                    alert('Waktu selesai harus minimal 2 jam setelah waktu mulai.');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Durasi Terlalu Pendek',
+                        text: 'Waktu selesai harus minimal 2 jam setelah waktu mulai/Kamu harus mengganti tanggal nya jika ingin sesuai dengan waktu yang anda inginkan.'
+                    });
                     $('#waktu_selesai').val('');
                     return;
                 }
             }
-
 
             // Trigger validation when any date/time field changes
             $('#tanggal_mulai, #tanggal_selesai, #waktu_mulai, #waktu_selesai').on('change', validateDateTime);
@@ -195,7 +229,7 @@
     $(document).ready(function() {
         $('#lokasi').on('change', function() {
             var kapasitas = $(this).find(':selected').data(
-            'kapasitas'); // Ambil kapasitas dari data-kapasitas
+                'kapasitas'); // Ambil kapasitas dari data-kapasitas
             $('#kapasitas').val(kapasitas); // Isi input kapasitas dengan nilai yang sesuai
         });
     });

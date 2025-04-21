@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tikets', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('event_id');
-            $table->enum('jenis_tiket', ['Early Bird', 'Reguler', 'VIP']);
+            $table->enum('jenis_tiket', ['Early Bird', 'Reguler', 'VIP', 'Presale']);
             $table->integer('harga_tiket');
             $table->integer('kuota_tiket');
             $table->integer('tiket_terjual');

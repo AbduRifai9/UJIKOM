@@ -32,7 +32,8 @@
                                     <td>{{ optional($item->pemesanan->tiket->event)->nama_event ?? '-' }}</td>
                                     <td>{{ optional($item->pemesanan->tiket)->jenis_tiket ?? '-' }}</td>
                                     <td>{{ optional($item->pemesanan)->kuantitas ?? '-' }}</td>
-                                    <td>Rp {{ number_format(optional($item->pemesanan)->total_harga, 0, ',', '.') ?? '-'}}</td>
+                                    <td>Rp {{ number_format(optional($item->pemesanan)->total_harga, 0, ',', '.') ?? '-' }}
+                                    </td>
                                     <td>
                                         @if (optional($item->pemesanan)->status_pembayaran == 1)
                                             <span class="badge bg-label-success">Sudah Digunakan</span>
@@ -52,7 +53,14 @@
                                                     <a href="{{ route('detail.edit', $item->id) }}"
                                                         class="dropdown-item">Edit</a>
                                                 </li>
-                                                <!-- Formulir untuk hapus -->
+                                                @if ($item->qr_path)
+                                                    <li>
+                                                        <a href="{{ asset($item->qr_path) }}" class="dropdown-item"
+                                                            download>
+                                                            Download QR
+                                                        </a>
+                                                    </li>
+                                                @endif
                                                 <li>
                                                     <form action="{{ route('detail.destroy', $item->id) }}" method="POST"
                                                         class="d-inline">

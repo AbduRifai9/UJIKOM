@@ -48,7 +48,7 @@
                                                 data-bs-toggle="dropdown" aria-expanded="false">
                                                 <i class="bx bx-dots-vertical-rounded"></i>
                                             </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
+                                            <ul class="dropdown-menu dropdown-menu-end">  
                                                 <li>
                                                     <a href="{{ route('pemesanan.edit', $item->id) }}"
                                                         class="dropdown-item">Edit</a>

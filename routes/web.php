@@ -11,7 +11,6 @@ use App\Http\Controllers\SocialiteController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\TiketController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\MidtransController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -30,12 +29,7 @@ Route::get('/transaksi', function () {
 
 Route::get('/event/{slug}', [EventController::class, 'detail'])->name('event.detail');
 Route::get('/transaksi/{id_tiket}/{jumlah}', [PemesananController::class, 'checkout'])->name('transaksi.checkout');
-Route::get('/pemesanan/success', [MidtransController::class, 'success'])->name('pemesanan.success');
-Route::get('/pemesanan/pending', [MidtransController::class, 'pending'])->name('pemesanan.pending');
-Route::get('/pemesanan/error', [MidtransController::class, 'error'])->name('pemesanan.error');
-Route::get('/pemesanan/cancel', function () {
-    return view('cancel-page'); // atau redirect kembali
-})->name('pemesanan.cancel');
+
 Route::middleware(['auth'])->group(function () {
     // Pemesanan routes
     Route::post('/pemesanan/create', [PemesananController::class, 'create'])->name('pemesanan.create');
@@ -44,10 +38,9 @@ Route::middleware(['auth'])->group(function () {
 });
 Route::middleware(['auth'])->group(function () {
     // ...existing routes...
-    Route::post('/pemesanan/proses', [PemesananController::class, 'proses'])->name('pemesanan.proses');
+    Route::get('/pemesanan/{id}/bayar', [PemesananController::class, 'bayar'])->name('pemesanan.bayar');
+    Route::post('/pemesanan/{id}/update-status', [PemesananController::class, 'updateStatus'])->name('pemesanan.updateStatus');
 });
-
-
 
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

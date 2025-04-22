@@ -99,16 +99,16 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <span>Jumlah Tiket</span>
-                            <span>{{ $jumlah }} Tiket</span>
+                            <span>{{ $kuantitas }} Tiket</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span>Subtotal</span>
-                            <span>Rp{{ number_format($tiket->harga_tiket * $jumlah) }}</span>
+                            <span>Rp{{ number_format($tiket->harga_tiket * $kuantitas) }}</span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between fw-bold">
                             <span>Total Pembayaran</span>
-                            <span class="text-primary">Rp{{ number_format($tiket->harga_tiket * $jumlah) }}</span>
+                            <span class="text-primary">Rp{{ number_format($tiket->harga_tiket * $kuantitas) }}</span>
                         </div>
                     </div>
 
@@ -142,13 +142,13 @@
     </script>
 
     <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
         $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
             $('#pay-button').click(function(e) {
                 e.preventDefault();
 
@@ -159,84 +159,209 @@
                     didOpen: () => Swal.showLoading()
                 });
 
+                // Ambil ID pemesanan secara aman dari blade
+                const pemesananId = "{{ $pemesanan->id ?? '' }}";
+
+                if (!pemesananId) {
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Data Tidak Lengkap',
+                        text: 'ID pemesanan tidak ditemukan.'
+                    });
+                    return;
+                }
+
                 $.ajax({
-                    url: '{{ route('pemesanan.proses') }}',
-                    method: 'POST',
-                    data: {
-                        tiket_id: '{{ $tiket->id }}',
-                        jumlah: '{{ $jumlah }}',
-                        _token: '{{ csrf_token() }}'
-                    },
+                    url: `/pemesanan/${pemesananId}/bayar`,
+                    method: 'GET',
                     success: function(response) {
                         Swal.close();
 
                         if (response.snap_token) {
                             window.snap.pay(response.snap_token, {
                                 onSuccess: function(result) {
-                                    handlePaymentResult('success', result);
+                                    updatePaymentStatus('success', pemesananId);
                                 },
                                 onPending: function(result) {
-                                    handlePaymentResult('pending', result);
+                                    updatePaymentStatus('pending', pemesananId);
                                 },
                                 onError: function(result) {
-                                    handlePaymentResult('error', result);
+                                    updatePaymentStatus('error', pemesananId);
                                 },
                                 onClose: function() {
-                                    handlePaymentResult('close');
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Pembayaran Dibatalkan',
+                                        text: 'Anda menutup popup pembayaran'
+                                    });
                                 }
                             });
                         } else {
-                            showError('Token pembayaran tidak valid');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Token Gagal Didapatkan',
+                                text: 'Token pembayaran tidak tersedia.'
+                            });
                         }
                     },
                     error: function(xhr) {
-                        handleAjaxError(xhr);
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Terjadi Kesalahan',
+                            text: xhr.responseJSON?.error ||
+                                'Gagal memproses pembayaran.'
+                        });
                     }
                 });
             });
 
-            function handlePaymentResult(status, result = null) {
-                const responses = {
+            function updatePaymentStatus(status, pemesananId) {
+                const statusMessages = {
                     success: {
                         icon: 'success',
                         title: 'Pembayaran Berhasil',
-                        text: 'Terima kasih atas pembayaran Anda',
-                        redirect: '{{ route('pemesanan.success') }}'
+                        text: 'Terima kasih atas pembayaran Anda'
                     },
                     pending: {
                         icon: 'info',
-                        title: 'Pembayaran Pending',
-                        text: 'Silakan selesaikan pembayaran Anda',
-                        redirect: '{{ route('pemesanan.pending') }}'
+                        title: 'Pembayaran Tertunda',
+                        text: 'Silakan selesaikan pembayaran Anda'
                     },
                     error: {
                         icon: 'error',
                         title: 'Pembayaran Gagal',
-                        text: 'Terjadi kesalahan saat pembayaran'
-                    },
-                    close: {
-                        icon: 'warning',
-                        title: 'Pembayaran Dibatalkan',
-                        text: 'Anda menutup popup pembayaran'
+                        text: 'Transaksi tidak berhasil dilakukan'
                     }
                 };
 
-                Swal.fire({
-                    icon: responses[status].icon,
-                    title: responses[status].title,
-                    text: responses[status].text
-                }).then(() => {
-                    if (responses[status].redirect) {
-                        window.location.href = responses[status].redirect;
+                $.ajax({
+                    url: `/pemesanan/${pemesananId}/update-status`,
+                    method: 'POST',
+                    data: {
+                        status: status
+                    },
+                    success: function(response) {
+                        Swal.fire(statusMessages[status]).then(() => {
+                            if (status === 'success') {
+                                window.location.href = '/';
+                            } else if (status === 'pending') {
+                                window.location.href = `/pemesanan/${status}`;
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Gagal update status:', xhr);
                     }
                 });
-            }
-
-            function showError(message) {
-                Swal.fire('Error', message, 'error');
             }
         });
     </script>
 </body>
 
 </html>
+
+{{-- <!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
+</script>
+
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $(document).ready(function() {
+        $('#pay-button').click(function(e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: 'Memproses Pembayaran',
+                text: 'Mohon tunggu...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            $.ajax({
+                url: '{{ route('pemesanan.proses') }}',
+                method: 'POST',
+                data: {
+                    tiket_id: '{{ $tiket->id }}',
+                    jumlah: '{{ $kuantitas }}',
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.close();
+
+                    if (response.snap_token) {
+                        window.snap.pay(response.snap_token, {
+                            onSuccess: function(result) {
+                                handlePaymentResult('success', result);
+                            },
+                            onPending: function(result) {
+                                handlePaymentResult('pending', result);
+                            },
+                            onError: function(result) {
+                                handlePaymentResult('error', result);
+                            },
+                            onClose: function() {
+                                handlePaymentResult('close');
+                            }
+                        });
+                    } else {
+                        showError('Token pembayaran tidak valid');
+                    }
+                },
+                error: function(xhr) {
+                    handleAjaxError(xhr);
+                }
+            });
+        });
+
+        function handlePaymentResult(status, result = null) {
+            const responses = {
+                success: {
+                    icon: 'success',
+                    title: 'Pembayaran Berhasil',
+                    text: 'Terima kasih atas pembayaran Anda',
+                    redirect: '{{ route('pemesanan.success') }}'
+                },
+                pending: {
+                    icon: 'info',
+                    title: 'Pembayaran Pending',
+                    text: 'Silakan selesaikan pembayaran Anda',
+                    redirect: '{{ route('pemesanan.pending') }}'
+                },
+                error: {
+                    icon: 'error',
+                    title: 'Pembayaran Gagal',
+                    text: 'Terjadi kesalahan saat pembayaran'
+                },
+                close: {
+                    icon: 'warning',
+                    title: 'Pembayaran Dibatalkan',
+                    text: 'Anda menutup popup pembayaran'
+                }
+            };
+
+            Swal.fire({
+                icon: responses[status].icon,
+                title: responses[status].title,
+                text: responses[status].text
+            }).then(() => {
+                if (responses[status].redirect) {
+                    window.location.href = responses[status].redirect;
+                }
+            });
+        }
+
+        function showError(message) {
+            Swal.fire('Error', message, 'error');
+        }
+    });
+</script> --}}

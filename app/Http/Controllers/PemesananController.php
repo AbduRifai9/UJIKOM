@@ -1,13 +1,11 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Pembayaran;
 use App\Models\Pemesanan;
 use App\Models\Tiket;
 use App\Models\User;
 use App\Services\MidtransService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -136,94 +134,117 @@ class PemesananController extends Controller
         return redirect()->route('pemesanan.index')->with('success', 'Data berhasil dihapus');
     }
 
-    public function checkout($id_tiket, $jumlah)
+    public function checkout($id_tiket, $kuantitas)
     {
         $tiket = Tiket::findOrFail($id_tiket);
 
-        return view('transaksi', compact('tiket', 'jumlah'));
-    }
+        // Simpan dulu ke pemesanans sebelum lanjut ke view
+        $pemesanan = Pemesanan::create([
+            'id_user'     => auth()->id(),
+            'id_tiket'    => $tiket->id,
+            'kuantitas'   => $kuantitas,
+            'total_harga' => $tiket->harga_tiket * $kuantitas,
+            'status'      => 'pending',
+        ]);
 
-    public function proses(Request $request)
+        return view('transaksi', compact('tiket', 'kuantitas', 'pemesanan'));
+    }
+    public function updateStatus(Request $request, $id)
     {
-        try {
-            // Validate request
-            $validated = $request->validate([
-                'tiket_id' => 'required|exists:tikets,id',
-                'jumlah'   => 'required|integer|min:1',
-            ]);
+        $pemesanan = Pemesanan::findOrFail($id);
 
-            // Check if user is authenticated
-            if (! auth()->check()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Silakan login terlebih dahulu',
-                ], 401);
-            }
+        $status = $request->status;
 
-            $tiket = Tiket::findOrFail($validated['tiket_id']);
-
-            // Check ticket availability
-            if ($tiket->kuota_tiket < $validated['jumlah']) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Stok tiket tidak mencukupi',
-                ], 422);
-            }
-
-            // Create pemesanan record
-            $pemesanan = Pemesanan::create([
-                'id_user'     => auth()->id(),
-                'id_tiket'    => $tiket->id,
-                'kuantitas'   => $validated['jumlah'],
-                'total_harga' => $tiket->harga_tiket * $validated['jumlah'],
-                'status'      => 'Pending',
-            ]);
-
-            $orderId = 'TRX-' . Str::random(5) . '-' . $pemesanan->id;
-
-            $transactionDetails = [
-                'transaction_details' => [
-                    'order_id'     => $orderId,
-                    'gross_amount' => $pemesanan->total_harga,
-                ],
-                'customer_details'    => [
-                    'first_name' => auth()->user()->name,
-                    'email'      => auth()->user()->email,
-                ],
-                'item_details'        => [[
-                    'id'       => $tiket->id,
-                    'price'    => $tiket->harga_tiket,
-                    'quantity' => $validated['jumlah'],
-                    'name'     => $tiket->jenis_tiket,
-                ]],
-            ];
-
-            // Set Midtrans configuration
-            Config::$serverKey    = config('midtrans.server_key');
-            Config::$isProduction = config('midtrans.is_production');
-            Config::$isSanitized  = true;
-            Config::$is3ds        = true;
-
-            $snapToken = Snap::getSnapToken($transactionDetails);
-
-            // Create pembayaran record
-            Pembayaran::create([
-                'pemesanan_id'          => $pemesanan->id,
-                'status_pembayaran'     => 'pending',
-                'snap_token'            => $snapToken,
-                'midtrans_booking_code' => $orderId,
-                'metode_pembayaran'     => 'midtrans', // Add this line
-            ]);
-
-            return response()->json([
-                'success'    => true,
-                'snap_token' => $snapToken,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+        if ($status === 'success') {
+            $pemesanan->status = 'Sudah Bayar';
+        } elseif ($status === 'pending') {
+            $pemesanan->status = 'Menunggu Pembayaran';
+        } elseif ($status === 'error') {
+            $pemesanan->status = 'Gagal';
         }
+
+        $pemesanan->save();
+
+        return response()->json(['message' => 'Status pemesanan diperbarui.']);
     }
+
+    // public function proses(Request $request)
+    // {
+    //     try {
+    //         $validated = $request->validate([
+    //             'tiket_id' => 'required|exists:tikets,id',
+    //             'jumlah'   => 'required|integer|min:1',
+    //         ]);
+
+    //         if (! auth()->check()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Silakan login terlebih dahulu',
+    //             ], 401);
+    //         }
+
+    //         $tiket = Tiket::findOrFail($validated['tiket_id']);
+
+    //         if ($tiket->kuota_tiket < $validated['jumlah']) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Stok tiket tidak mencukupi',
+    //             ], 422);
+    //         }
+
+    //         $pemesanan = Pemesanan::create([
+    //             'id_user'     => auth()->id(),
+    //             'id_tiket'    => $tiket->id,
+    //             'kuantitas'   => $validated['jumlah'],
+    //             'total_harga' => $tiket->harga_tiket * $validated['jumlah'],
+    //             'status'      => 'Pending',
+    //         ]);
+
+    //         $orderId = 'TRX-' . Str::random(5) . '-' . $pemesanan->id;
+
+    //         // Midtrans configuration
+    //         Config::$serverKey    = config('midtrans.server_key');
+    //         Config::$isProduction = config('midtrans.is_production');
+    //         Config::$isSanitized  = true;
+    //         Config::$is3ds        = true;
+
+    //         $transactionDetails = [
+    //             'transaction_details' => [
+    //                 'order_id'     => $orderId,
+    //                 'gross_amount' => $pemesanan->total_harga,
+    //             ],
+    //             'customer_details'    => [
+    //                 'first_name' => auth()->user()->name,
+    //                 'email'      => auth()->user()->email,
+    //             ],
+    //             'item_details'        => [[
+    //                 'id'       => $tiket->id,
+    //                 'price'    => $tiket->harga_tiket,
+    //                 'quantity' => $validated['jumlah'],
+    //                 'name'     => $tiket->jenis_tiket,
+    //             ]],
+    //         ];
+
+    //         $snapToken = Snap::getSnapToken($transactionDetails);
+
+    //         Pembayaran::create([
+    //             'pemesanan_id'          => $pemesanan->id,
+    //             'status_pembayaran'     => 'pending',
+    //             'snap_token'            => $snapToken,
+    //             'midtrans_booking_code' => $orderId,
+    //             'metode_pembayaran'     => 'midtrans',
+    //         ]);
+
+    //         return response()->json([
+    //             'success'      => true,
+    //             'snap_token'   => $snapToken,
+    //             'pemesanan_id' => $pemesanan->id,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 }

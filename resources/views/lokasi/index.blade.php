@@ -44,12 +44,13 @@
                                                 </li>
                                                 <!-- Formulir untuk hapus -->
                                                 <li>
-                                                    <form action="{{ route('lokasi.destroy', $item->id) }}" method="POST"
+                                                    <form id="delete-form-{{ $item->id }}"
+                                                        action="{{ route('lokasi.destroy', $item->id) }}" method="POST"
                                                         class="d-inline">
                                                         @method('DELETE')
                                                         @csrf
-                                                        <button type="submit" class="dropdown-item"
-                                                            onclick="return confirm('Apakah Anda Yakin Ingin Menghapus Data Tersebut?')">Delete</button>
+                                                        <button type="submit" class="dropdown-item delete-btn"
+                                                            data-id="{{ $item->id }}">Delete</button>
                                                     </form>
                                                 </li>
                                             </ul>
@@ -65,6 +66,7 @@
         </div>
     </div>
 @endsection
+
 @push('scripts')
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
@@ -72,8 +74,9 @@
         new DataTable('#dataTable');
     </script>
 
-        <!-- Leaflet JS & CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<!-- SweetAlert2 JS & CSS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <!-- Inisialisasi Map untuk setiap lokasi -->
@@ -94,6 +97,36 @@
             @endforeach
         });
     </script>
+
+    <script>
+        // Handle the delete confirmation using SweetAlert
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault(); // Mencegah form untuk langsung dikirimkan
+
+                    const formId = `delete-form-${this.getAttribute('data-id')}`;
+
+                    // Tampilkan SweetAlert konfirmasi
+                    Swal.fire({
+                        title: 'Apakah Anda Yakin?',
+                        text: 'Data ini akan dihapus secara permanen!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Hapus',
+                        cancelButtonText: 'Batal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById(formId)
+                                .submit(); // Kirimkan form jika dikonfirmasi
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 @endpush
+
 {{-- document.getElementById('output').innerHTML =
 '<iframe src="{{ $item->url }}" width="100" height="100" style="border:0;" allowfullscreen></iframe>'; --}}

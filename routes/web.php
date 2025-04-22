@@ -27,9 +27,22 @@ Route::get('/transaksi', function () {
     return view('transaksi');
 });
 
+Route::get('/riwayat', function () {
+    return view('riwayat');
+});
+
+Route::get('/event', function () {
+    return view('event');
+});
+
+Route::get('/about', function () {
+    return view('about');
+});
+
 Route::get('/event/{slug}', [EventController::class, 'detail'])->name('event.detail');
 Route::get('/transaksi/{id_tiket}/{jumlah}', [PemesananController::class, 'checkout'])->name('transaksi.checkout');
-
+Route::get('/riwayat-transaksi', [PemesananController::class, 'riwayat'])->name('pemesanan.riwayat')->middleware('auth');
+Route::post('/tiket/filter', [TiketController::class, 'tampil'])->name('tiket.tampil');
 Route::middleware(['auth'])->group(function () {
     // Pemesanan routes
     Route::post('/pemesanan/create', [PemesananController::class, 'create'])->name('pemesanan.create');

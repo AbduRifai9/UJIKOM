@@ -18,8 +18,6 @@
                                 <th>Jenis Tiket</th>
                                 <th>Harga Tiket</th>
                                 <th>Kuota Tiket</th>
-                                <th>Tiket Terjual</th>
-                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -32,8 +30,6 @@
                                     <td>{{ $item->jenis_tiket }}</td>
                                     <td>Rp {{ number_format($item->harga_tiket, 0, ',', '.') }}</td>
                                     <td>{{ $item->kuota_tiket }}</td>
-                                    <td>{{ $item->tiket_terjual }}</td>
-                                    <td>{{ $item->status }}</td>
                                     <td>
                                         <div class="btn-group">
                                             <button type="button"
@@ -48,12 +44,13 @@
                                                 </li>
                                                 <!-- Formulir untuk hapus -->
                                                 <li>
-                                                    <form action="{{ route('admin.tiket.destroy', $item->id) }}" method="POST"
-                                                        class="d-inline">
+                                                    <form action="{{ route('admin.tiket.destroy', $item->id) }}"
+                                                        method="POST" class="d-inline"
+                                                        id="delete-form-{{ $item->id }}">
                                                         @method('DELETE')
                                                         @csrf
-                                                        <button type="submit" class="dropdown-item"
-                                                            onclick="return confirm('Apakah Anda Yakin Ingin Menghapus Data Tersebut?')">Delete</button>
+                                                        <button type="button" class="dropdown-item btn-delete"
+                                                            data-url="{{ route('admin.tiket.destroy', $item->id) }}">Delete</button>
                                                     </form>
                                                 </li>
                                             </ul>
@@ -69,10 +66,67 @@
         </div>
     </div>
 @endsection
+
 @push('scripts')
+    <!-- SweetAlert2 and DataTables -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+
+    <!-- Initialize DataTable -->
     <script>
         new DataTable('#dataTable');
     </script>
+
+    <!-- SweetAlert2 for delete confirmation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.btn-delete');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+
+                    Swal.fire({
+                        title: 'Yakin ingin menghapus?',
+                        text: "Anda yakin ingin menghapus data tiket ini?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const form = document.getElementById('delete-form-' + url.split(
+                                '/').pop());
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+    <!-- Toast Notification for success -->
+    @if (session('success'))
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: '{{ session('success') }}'
+            });
+        </script>
+    @endif
 @endpush

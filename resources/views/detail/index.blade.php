@@ -49,10 +49,10 @@
                                                 <i class="bx bx-dots-vertical-rounded"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
-                                                <li>
+                                                {{-- <li>
                                                     <a href="{{ route('detail.edit', $item->id) }}"
                                                         class="dropdown-item">Edit</a>
-                                                </li>
+                                                </li> --}}
                                                 @if ($item->qr_path)
                                                     <li>
                                                         <a href="{{ asset($item->qr_path) }}" class="dropdown-item"

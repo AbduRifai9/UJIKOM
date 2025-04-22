@@ -67,34 +67,6 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label" for="basic-default-name">Tiket Terjual</label>
-                                <div class="col-sm-10">
-                                    <input type="number" class="form-control @error('tiket_terjual') is-invalid @enderror"
-                                        value="{{ old('tiket_terjual', $tiket->tiket_terjual) }}" name="tiket_terjual"
-                                        id="tiket_terjual">
-                                    @error('tiket_terjual')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label" for="basic-default-name">Status</label>
-                                <div class="col-sm-10">
-                                    <select class="form-control" name="status" type="text">
-                                        <option value="Aktif" {{ $tiket->status == 'Aktif' ? 'selected' : '' }}>Aktif
-                                        </option>
-                                        <option value="Tidak Aktif"
-                                            {{ $tiket->status == 'Tidak Aktif' ? 'selected' : '' }}>
-                                            Tidak Aktif</option>
-                                        <option value="Kadaluwarsa"
-                                            {{ $tiket->status == 'Kadaluwarsa' ? 'selected' : '' }}>Kadaluwarsa
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
                             <div class="row float-end">
                                 <div class="col-sm-10">
                                     <button type="submit" class="btn btn-primary">Perbarui</button>

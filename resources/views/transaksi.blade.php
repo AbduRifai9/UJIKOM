@@ -82,10 +82,12 @@
                 <div class="card shadow card-checkout">
 
                     <!-- Judul Event -->
-                    <div class="text-center mb-4">
+                    <div class="text-center mb-1">
                         <h4 class="section-title mb-1">Konfirmasi Pemesanan</h4>
                         <small class="text-muted">WaveFest 2025</small>
-                        <p class="text-muted mb-0">21 April 2025 • Indonesia</p>
+                        <p class="text-muted mb-0">
+                            {{ \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') }} • Indonesia
+                        </p>
                     </div>
 
                     <div class="ticket-divider"></div>
@@ -93,6 +95,10 @@
                     <!-- Ringkasan Tiket -->
                     <div class="summary-box mb-4">
                         <h5 class="mb-3">🎟️ Ringkasan Tiket</h5>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Jenis Tiket</span>
+                            <span>{{ $tiket->jenis_tiket }}</span>
+                        </div>
                         <div class="d-flex justify-content-between">
                             <span>Harga Satuan</span>
                             <span>Rp{{ number_format($tiket->harga_tiket) }}</span>

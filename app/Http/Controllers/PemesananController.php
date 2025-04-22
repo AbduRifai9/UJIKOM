@@ -168,6 +168,17 @@ class PemesananController extends Controller
         return response()->json(['message' => 'Status pemesanan diperbarui.']);
     }
 
+    public function riwayat()
+    {
+        $riwayat = Pemesanan::with('tiket.event')
+            ->where('id_user', auth()->id())
+            ->where('status', 'Sudah Bayar')
+            ->latest()
+            ->get();
+
+        return view('riwayat', compact('riwayat'));
+    }
+
     // public function proses(Request $request)
     // {
     //     try {

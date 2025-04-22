@@ -89,22 +89,17 @@ class TiketController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'event_id'      => 'required',
-            'jenis_tiket'   => 'required',
-            'harga_tiket'   => 'required',
-            'kuota_tiket'   => 'required',
-            'tiket_terjual' => 'required',
-            'status'        => 'required',
+            'event_id'    => 'required',
+            'jenis_tiket' => 'required',
+            'harga_tiket' => 'required',
+            'kuota_tiket' => 'required',
         ]);
 
-        $tiket                = tiket::FindOrFail($id);
-        $tiket->event_id      = $request->event_id;
-        $tiket->jenis_tiket   = $request->jenis_tiket;
-        $tiket->harga_tiket   = $request->harga_tiket;
-        $tiket->kuota_tiket   = $request->kuota_tiket - $request->tiket_terjual;
-        $tiket->tiket_terjual = $request->tiket_terjual;
-        $tiket->status        = $request->status;
-
+        $tiket              = tiket::FindOrFail($id);
+        $tiket->event_id    = $request->event_id;
+        $tiket->jenis_tiket = $request->jenis_tiket;
+        $tiket->harga_tiket = $request->harga_tiket;
+        $tiket->kuota_tiket = $request->kuota_tiket;
         // $tiket->kuota_tersisa = $tiket->kuota_tiket - $tiket->tiket_terjual;
 
         $tiket->save();
@@ -123,4 +118,13 @@ class TiketController extends Controller
         return redirect()->route('admin.tiket.index')
             ->with('success', 'data berhasil dihapus');
     }
+
+    // Untuk tampilan awal
+    // public function tampil()
+    // {
+    //     $tikets = Tiket::with('event.lokasi')->get();
+    //     $lokasi = $tikets->pluck('event.lokasi')->unique('id')->values();
+
+    //     return view('event', compact('tikets', 'lokasi'));
+    // }
 }
